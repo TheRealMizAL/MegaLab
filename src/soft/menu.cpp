@@ -113,17 +113,33 @@ void Menu::cursorDown() {
 void Menu::enterNode() {
     if (this->current_node->getTypeName() != "IntValueNode") {
         char* node_type = this->current_node->childs[this->_selected_child]->getTypeName();
-        if(node_type == "BackNode") this->current_node = this->current_node->parent;
-        if(node_type == "IntValueNode") {
+        if(node_type == "BackNode")
+            this->current_node = this->current_node->parent;
+        else if(node_type == "ActionNode"){
+            ActionNode* node = this->current_node;
+            node->Action()();
+            this->current_node = this->root;
+        }else if(node_type == "IntValueNode") {
             this->current_node = this->current_node->childs[this->_selected_child];
         }
-        else if(this->current_node->childs[this->_selected_child]->max_childs > 0) this->current_node = this->current_node->childs[this->_selected_child];
-    } else {
+        else if(this->current_node->childs[this->_selected_child]->max_childs > 0)
+            this->current_node = this->current_node->childs[this->_selected_child];
+    }
+    else {
         this->current_node = this->current_node->parent;
     }
-
     this->_cursor_position = 0;
     this->_selected_child = 0;
     this->_start_child = 0;
     this->drawChilds();
+}
+
+ActionNode::ActionNode(char *content, void (*action)()) : MenuNode(content,0)
+{
+    this->action = action;
+}
+
+void (*ActionNode::Action())()
+{
+    return this->action;
 }

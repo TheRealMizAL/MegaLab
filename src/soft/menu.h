@@ -68,10 +68,15 @@ public:
     }
 };
 
-// TODO
 class ActionNode: public MenuNode {
+private:
+    void (*action)() = nullptr;
 public:
-    ActionNode(/* args */);
+    ActionNode(char* content,void (*action)());
+    char* getTypeName()override{
+        return "ActionNode";
+    }
+    void (*Action())();
 };
 
 
