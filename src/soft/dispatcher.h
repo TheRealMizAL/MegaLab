@@ -13,6 +13,7 @@ public:
     virtual const char* const getName()const = 0;
     virtual short (*getFunc())() = 0;
     virtual uint8_t getDelay()const = 0;
+    virtual bool isEnabled() = 0;
 };
 
 class Task : ITask{
@@ -33,6 +34,7 @@ public:
     virtual const char* const getName()const override;
     virtual short (*getFunc())()override;
     virtual uint8_t getDelay()const override;
+    virtual bool isEnabled() override;
 };
 
 class MegaTask: public Task
@@ -48,10 +50,10 @@ private:
 
 class Node{
 public:
-    Task obj;
+    Task* obj;
     Node* next = nullptr;
 
-    Node(Task& new_obj, Node* next_node) {
+    Node(Task* new_obj, Node* next_node) {
         this->obj = new_obj;
         this->next = next_node;
     }
@@ -59,7 +61,7 @@ public:
 
 class IDispatcher{
 public:
-    virtual void add(Task& task) = 0;
+    virtual void add(Task* task) = 0;
     virtual void add_ticker(ITickable* ticker) = 0;
     virtual void tick() = 0;
     virtual void enable_all() = 0;
@@ -74,7 +76,7 @@ private:
 public:
     Dispatcher() = delete;
     Dispatcher(const short tickable_size);
-    virtual void add(Task& task)override;
+    virtual void add(Task* task)override;
     virtual void add_ticker(ITickable* ticker)override;
     virtual void tick()override;
     virtual void enable_all() override;

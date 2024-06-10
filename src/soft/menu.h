@@ -56,14 +56,35 @@ private:
     char buffer[20] = "";
 public:
     IntValueNode(int8_t* val, char* content);
-    IntValueNode(MenuNode& node);
 
     char* getTypeName() override {
         return "IntValueNode";
     }
 
     char* getContent() override {
+        // strcpy(buffer, this->content);
+        // itoa(*this->val, buffer + 15, DEC);
         sprintf(buffer, "%s          %d", this->content, *this->val);
+        return buffer;
+    }
+};
+
+class FloatValueNode: public MenuNode {
+public:
+    float* val;
+private:
+    char buffer[20] = "";
+    char fl_buf[5] = "";
+public:
+    FloatValueNode(float* val, char* content);
+
+    char* getTypeName() override {
+        return "IntValueNode";
+    }
+
+    char* getContent() override {
+        dtostrf(*this->val, 2, 1, fl_buf);
+        sprintf(buffer, "%s          %s", this->content,fl_buf);
         return buffer;
     }
 };
@@ -81,6 +102,8 @@ public:
 
 
 class Menu {
+public:
+    uint32_t last_update;
 private:
     MenuNode* root;
     MenuNode* current_node;

@@ -33,8 +33,10 @@ IntValueNode::IntValueNode(int8_t* val, char* content) : MenuNode() {
     this->max_childs = 0;
 }
 
-IntValueNode::IntValueNode(MenuNode& node) {
-
+FloatValueNode::FloatValueNode(float* val, char* content) : MenuNode() {
+    strncpy(this->content, content, 20);
+    this->val = val;
+    this->max_childs = 0;
 }
 
 LiquidCrystal_I2C* Menu::screen = nullptr;
@@ -83,11 +85,11 @@ void Menu::cursorUp() {
         this->_selected_child = min(this->current_node->max_childs - 1, this->_selected_child + 1);
         Menu::drawCursor();
     } else {
-        IntValueNode* current = (IntValueNode*)this->current_node;
+        IntValueNode* current = this->current_node;
         (*current->val)++;
-        Serial.println(*current->val);
         this->drawChilds();
     }
+    this->last_update = millis();
 }
 
 void Menu::cursorDown() {
@@ -103,20 +105,21 @@ void Menu::cursorDown() {
         this->_selected_child = max(0, this->_selected_child - 1);
         Menu::drawCursor();
     } else {
-        IntValueNode* current = (IntValueNode*)this->current_node;
+        IntValueNode* current = this->current_node;
         (*current->val)--;
-        Serial.println(*current->val);
         this->drawChilds();
     }
+    this->last_update = millis();
 }
 
 void Menu::enterNode() {
     if (this->current_node->getTypeName() != "IntValueNode") {
         char* node_type = this->current_node->childs[this->_selected_child]->getTypeName();
+        Serial.println(node_type);
         if(node_type == "BackNode")
             this->current_node = this->current_node->parent;
         else if(node_type == "ActionNode"){
-            ActionNode* node = this->current_node;
+            ActionNode* node = this->current_node->childs[this->_selected_child];
             node->Action()();
             this->current_node = this->root;
         }else if(node_type == "IntValueNode") {
@@ -132,6 +135,7 @@ void Menu::enterNode() {
     this->_selected_child = 0;
     this->_start_child = 0;
     this->drawChilds();
+    this->last_update = millis();
 }
 
 ActionNode::ActionNode(char *content, void (*action)()) : MenuNode(content,0)

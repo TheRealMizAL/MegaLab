@@ -6,7 +6,7 @@ Dispatcher::Dispatcher(const short tickable_size)
     this->tickers_size = tickable_size;
 }
 
-void Dispatcher::add(Task &task)
+void Dispatcher::add(Task *task)
 {
     static Node* last = nullptr;
     if(!root){
@@ -36,9 +36,9 @@ void Dispatcher::tick()
     uint32_t current_time = millis();
     Node* it = root;
     while(it != nullptr){
-        if(it->obj.is_enabled && current_time - it->obj.last_exec >= it->obj.getDelay()){
-            it->obj.run();
-            it->obj.last_exec = current_time;
+        if(it->obj->is_enabled && current_time - it->obj->last_exec >= it->obj->getDelay()){
+            it->obj->run();
+            it->obj->last_exec = current_time;
         }
         it = it->next;
     }
@@ -47,7 +47,7 @@ void Dispatcher::tick()
 void Dispatcher::enable_all() {
     Node* it = root;
     while(it != nullptr){
-        it->obj.enable();
+        it->obj->enable();
         it = it->next;
     }
 }
@@ -62,6 +62,7 @@ Task::Task(short (*work)(), const char *name, uint8_t delay)
 void Task::disable()
 {
     this->is_enabled = false;
+    this->is_running = false;
 }
 
 void Task::enable()
@@ -75,6 +76,10 @@ void Task::run()
     if(is_running)
         this->work();
     is_running = false;
+}
+
+bool Task::isEnabled() {
+    return this->is_enabled;
 }
 
 const char * const Task::getName() const
